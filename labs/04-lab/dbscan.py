@@ -21,7 +21,7 @@ class DBC():
         assignment should match the index of the data point
         in the dataset.
         """
-        return
+        return [0 for _ in range(len(self.dataset))]
 
 clustering = DBC(X, 3, .2).dbscan()
 colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
