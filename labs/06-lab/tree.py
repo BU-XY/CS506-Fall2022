@@ -51,7 +51,11 @@ def get_prediction(node, example):
         return node.vote
     else:
         # your code here
-        return
+        if example[node.attribute] == 1:
+            pred = get_prediction(node.left, example)
+        else:
+            pred = get_prediction(node.right, example)
+        return pred
 
 
 class SimpleDecisionTree:
@@ -73,29 +77,42 @@ class SimpleDecisionTree:
 
     def gini_split(self, data, attr):
         # compute the gini of the split on attr
-        pass
+        freq = sum(data[attr]) / len(data[attr])
+        frequencies = [freq, 1-freq]
+        return 1 - sum(map(lambda x : x ** 2, frequencies))
     
 
     def get_majority_vote(self, subset):
         # get the majority vote from a subset of the dataset
-        pass
+        unique, count = np.unique(subset[self.target_name], return_counts=True)
+        if count[0] > count[1]:
+            return unique[0]
+        else: return unique[1]
 
 
-    def is_pure(data, target_name):
+    def is_pure(self, data, target_name):
         # returns true if all data has the same target value
-        pass
+        if len(np.unique(data[target_name])) == 1:
+            return True
+        else: return False
 
     def get_best_attribute(self, data):
         # returns None if none of the attributes are good
         if self.is_pure(data, self.target_name):
             return None
-        
-        pass
+        best = 0
+        best_attr = None
+        for attr in data.dtype.names:
+            ginis = self.gini_split(data, attr)
+            if ginis < best:
+                best = ginis
+                best_attr = attr
+        return best_attr
 
     
     def get_subset(self, data, attr):
-        left = ... # return the rows of the dataset where attribute == 1
-        right = ... # return the rows of the dataset where attribute == 0
+        left = data[data[attr] == 1] # return the rows of the dataset where attribute == 1
+        right = data[data[attr] == 0] # return the rows of the dataset where attribute == 0
         return left, right
 
 
@@ -110,7 +127,7 @@ class SimpleDecisionTree:
             if data is None:
                 node.vote = self.default_class
             else:
-                node.vote = self.get_majority_vote(data, self.target_name)
+                node.vote = self.get_majority_vote(data)
             return node
 
         left, right = self.get_subset(data, node.attribute)
